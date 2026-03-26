@@ -1,13 +1,25 @@
 import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  SectionList,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useChurch } from "@/lib/ChurchContext";
+import { useSongs } from "@/lib/useSongs";
+import { SongSearchBar } from "@/components/songs/SongSearchBar";
+import { SongLetterGroup } from "@/components/songs/SongLetterGroup";
+import { SongItem } from "@/components/songs/SongItem";
 
 export default function ChurchHomeScreen() {
   const { church, clearChurch } = useChurch();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { groups, isLoading, error, searchQuery, setSearchQuery, retry } =
+    useSongs(church?.subdomain);
 
   const handleChangeChurch = async () => {
     setMenuOpen(false);
@@ -23,7 +35,10 @@ export default function ChurchHomeScreen() {
           onPress={() => setMenuOpen(false)}
         />
       )}
-      <View className="flex-row justify-end px-4 pt-2">
+      <View className="flex-row items-center justify-between px-4 pt-2 pb-1">
+        <Text className="text-lg font-extrabold text-amber-400">
+          Canciones de {church?.name}
+        </Text>
         <View className="relative">
           <Pressable
             onPress={() => setMenuOpen(!menuOpen)}
@@ -44,12 +59,48 @@ export default function ChurchHomeScreen() {
           )}
         </View>
       </View>
-      <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-lg text-violet-300">Welcome to</Text>
-        <Text className="mt-2 text-3xl font-bold text-amber-400">
-          {church?.name}
-        </Text>
-      </View>
+
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#fbbf24" />
+          <Text className="mt-3 text-violet-400">Cargando canciones...</Text>
+        </View>
+      ) : error ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Ionicons name="cloud-offline" size={48} color="#f87171" />
+          <Text className="mt-3 text-center text-red-400">{error}</Text>
+          <Pressable
+            onPress={retry}
+            className="mt-4 rounded-xl bg-amber-400 px-6 py-3 active:opacity-80"
+          >
+            <Text className="font-semibold text-violet-950">Reintentar</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <SectionList
+          sections={groups}
+          keyExtractor={(item) => item.id.toString()}
+          renderSectionHeader={({ section }) => (
+            <SongLetterGroup letter={section.letter} count={section.count} />
+          )}
+          renderItem={({ item }) => <SongItem song={item} />}
+          ListHeaderComponent={
+            <SongSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+          }
+          ListEmptyComponent={
+            <View className="items-center justify-center py-20">
+              <Ionicons name="musical-notes" size={48} color="#8b5cf6" />
+              <Text className="mt-3 text-violet-400">
+                {searchQuery
+                  ? "No se encontraron canciones"
+                  : "No hay canciones disponibles"}
+              </Text>
+            </View>
+          }
+          stickySectionHeadersEnabled
+          contentContainerStyle={{ paddingBottom: 32 }}
+        />
+      )}
     </SafeAreaView>
   );
 }
