@@ -14,6 +14,7 @@ import { useSongs } from "@/lib/useSongs";
 import { SongSearchBar } from "@/components/songs/SongSearchBar";
 import { SongLetterGroup } from "@/components/songs/SongLetterGroup";
 import { SongItem } from "@/components/songs/SongItem";
+import { AudioPlayer } from "@/components/songs/AudioPlayer";
 
 export default function ChurchHomeScreen() {
   const { church, clearChurch } = useChurch();
@@ -98,9 +99,10 @@ export default function ChurchHomeScreen() {
             </View>
           }
           stickySectionHeadersEnabled
-          contentContainerStyle={{ paddingBottom: 32 }}
+          contentContainerStyle={{ paddingBottom: 100 }}
         />
       )}
+      <AudioPlayer />
     </SafeAreaView>
   );
 }

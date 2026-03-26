@@ -3,6 +3,7 @@ import { View, Text, Pressable, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import { Song } from "@/lib/types";
+import { useAudioPlayer } from "@/lib/AudioPlayerContext";
 
 interface Props {
   song: Song;
@@ -66,49 +67,75 @@ function getEmbedHtml(videoLink: { provider: string; video_id: string }) {
 export function SongItem({ song }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const { playSong, currentSong, isPlaying } = useAudioPlayer();
   const hasLyrics = !!song.content;
   const hasAudio = song.video_links && song.video_links.length > 0;
+  const isActive = currentSong?.id === song.id;
 
   const embedHtml = hasAudio ? getEmbedHtml(song.video_links[0]) : null;
 
   return (
-    <View className="mx-4 mb-2 overflow-hidden rounded-xl border border-violet-800 bg-violet-900/60">
-      <View className="flex-row items-center px-4 py-3">
-        <Pressable
-          onPress={() => setExpanded(!expanded)}
-          className="flex-1 flex-row items-center active:opacity-70"
-        >
+    <View
+      className={`mx-4 mb-2 overflow-hidden rounded-xl border bg-violet-900/60 ${
+        isActive ? "border-amber-400/50" : "border-violet-800"
+      }`}
+    >
+      <Pressable
+        onPress={() => setExpanded(!expanded)}
+        className="px-4 pt-3 pb-1 active:opacity-70"
+      >
+        <View className="flex-row items-center justify-between">
           <Text
-            className="flex-1 font-semibold text-violet-100"
+            className={`flex-1 text-base font-semibold ${
+              isActive ? "text-amber-400" : "text-violet-100"
+            }`}
             numberOfLines={expanded ? undefined : 1}
           >
             {song.title}
           </Text>
-          <View className="ml-2 flex-row items-center gap-1.5">
-            {hasLyrics && (
-              <View className="rounded-md bg-violet-800 px-1.5 py-0.5">
-                <Text className="text-[10px] font-medium text-violet-300">
-                  Letra
-                </Text>
-              </View>
-            )}
-            <Ionicons
-              name={expanded ? "chevron-up" : "chevron-down"}
-              size={16}
-              color="#c4b5fd"
-            />
-          </View>
-        </Pressable>
-        {hasAudio && (
+          <Ionicons
+            name={expanded ? "chevron-up" : "chevron-down"}
+            size={16}
+            color="#c4b5fd"
+          />
+        </View>
+      </Pressable>
+      <View className="flex-row items-center gap-2 px-4 pb-3 pt-1">
+        {hasLyrics && (
           <Pressable
-            onPress={() => setShowVideo(true)}
-            className="ml-2 flex-row items-center gap-1 rounded-md bg-amber-400/20 px-2 py-1 active:bg-amber-400/40"
+            onPress={() => setExpanded(!expanded)}
+            className="rounded-md bg-violet-800 px-2 py-0.5 active:bg-violet-700"
           >
-            <Ionicons name="logo-youtube" size={12} color="#fbbf24" />
-            <Text className="text-[10px] font-medium text-amber-400">
-              Video
+            <Text className="text-[10px] font-medium text-violet-300">
+              Letra
             </Text>
           </Pressable>
+        )}
+        {hasAudio && (
+          <>
+            <Pressable
+              onPress={() => playSong(song)}
+              className="flex-row items-center gap-1 rounded-md bg-green-500/20 px-2 py-0.5 active:bg-green-500/40"
+            >
+              {isActive && isPlaying ? (
+                <Ionicons name="volume-high" size={12} color="#22c55e" />
+              ) : (
+                <Ionicons name="play-circle" size={12} color="#22c55e" />
+              )}
+              <Text className="text-[10px] font-medium text-green-400">
+                Escuchar
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setShowVideo(true)}
+              className="flex-row items-center gap-1 rounded-md bg-amber-400/20 px-2 py-0.5 active:bg-amber-400/40"
+            >
+              <Ionicons name="logo-youtube" size={12} color="#fbbf24" />
+              <Text className="text-[10px] font-medium text-amber-400">
+                Video
+              </Text>
+            </Pressable>
+          </>
         )}
       </View>
       {expanded && hasLyrics && (

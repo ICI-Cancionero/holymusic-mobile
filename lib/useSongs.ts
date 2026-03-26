@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { fetchSongs } from "./api";
 import { Song, SongGroup } from "./types";
+import { useAudioPlayer } from "./AudioPlayerContext";
 
 export function useSongs(subdomain: string | undefined) {
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { setAllSongs } = useAudioPlayer();
 
   const loadSongs = useCallback(async () => {
     if (!subdomain) return;
@@ -15,12 +17,13 @@ export function useSongs(subdomain: string | undefined) {
     try {
       const data = await fetchSongs(subdomain);
       setSongs(data);
+      setAllSongs(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load songs");
     } finally {
       setIsLoading(false);
     }
-  }, [subdomain]);
+  }, [subdomain, setAllSongs]);
 
   useEffect(() => {
     loadSongs();
