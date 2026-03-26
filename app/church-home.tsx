@@ -54,7 +54,7 @@ export default function ChurchHomeScreen() {
                 className="flex-row items-center gap-3 rounded-lg px-4 py-3 active:bg-violet-800"
               >
                 <Ionicons name="swap-horizontal" size={18} color="#c4b5fd" />
-                <Text className="text-sm text-violet-200">Change Church</Text>
+                <Text className="text-sm text-violet-200">Cambiar Iglesia</Text>
               </Pressable>
             </View>
           )}

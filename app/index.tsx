@@ -41,13 +41,13 @@ export default function IndexScreen() {
       <View className="flex-1 items-center justify-center px-8">
         <Text className="text-5xl font-bold text-amber-400">Holymusic</Text>
         <Text className="mt-4 text-center text-lg text-violet-300">
-          Select your church
+          Selecciona tu iglesia
         </Text>
         <View className="mt-10 w-full">
           <Select onValueChange={handleSelect}>
             <SelectTrigger className="rounded-2xl border border-amber-400/30 bg-violet-900/80 p-4">
               <SelectInput
-                placeholder="Choose your church"
+                placeholder="Elige tu iglesia"
                 className="text-white placeholder:text-violet-300"
               />
               <SelectIcon
